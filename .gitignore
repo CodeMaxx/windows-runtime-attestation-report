@@ -1,0 +1,40 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM64/
+[Bb]uild/
+deploy/
+*.exe
+*.pdb
+*.ilk
+*.obj
+*.iobj
+*.ipdb
+*.tlog
+*.lastbuildstate
+*.idb
+*.log
+
+# Visual Studio user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# Captured report packages (may contain host-specific driver data)
+*.bin
+
+# Rescan / IntelliSense
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
