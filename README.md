@@ -24,6 +24,11 @@ that header and use the SDK definitions instead.
 > Scope: this sample **retrieves, parses, and prints** the report. It does not
 > perform remote attestation or verify the package's RSA-PSS signature.
 
+> **New here?**
+> [Patch or attack? Inside the Windows Secure Hotpatch Report](https://www.akashtrehan.com/secure-hotpatch-report/)
+> explains what the hotpatch report is, what it proves, what it doesn't, and
+> how security software should use it. This sample is the code behind it.
+
 ## Requirements
 
 To **run**:
@@ -156,8 +161,15 @@ with no active hotpatches the report lists 0 images.
 
 ## Further reading
 
-A series of blog posts explaining the concepts behind this sample is coming over
-the next few weeks at [akashtrehan.com](https://akashtrehan.com).
+A series of posts at [akashtrehan.com](https://www.akashtrehan.com) explains the
+concepts behind this sample.
+
+- [Patch or attack? Inside the Windows Secure Hotpatch Report](https://www.akashtrehan.com/secure-hotpatch-report/)
+  — what a secure hotpatch looks like in memory, why it is indistinguishable
+  from an inline hook at the byte level, and how the signed report settles it.
+
+More on the trust model, the package format, the driver report, and verifying
+the signature are on the way.
 
 ## License
 
