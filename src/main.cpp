@@ -20,7 +20,7 @@
 #include <cstdio>
 #include <cstring>
 
-#pragma comment(lib, "mincore.lib")   // GetRuntimeAttestationReport
+#pragma comment(lib, "onecore.lib")   // GetRuntimeAttestationReport
 #pragma comment(lib, "bcrypt.lib")    // BCryptGenRandom
 
 // Selects which report type(s) to request. Defaults to the driver report.
@@ -45,10 +45,10 @@ ParseReportTypes(int argc, char** argv, UINT64* reportTypes)
         if (_stricmp(argv[i], "driver") == 0) {
             *reportTypes = RUNTIME_REPORT_TYPE_TO_MASK(RuntimeReportTypeDriver);
         } else if (_stricmp(argv[i], "hotpatch") == 0) {
-            *reportTypes = RUNTIME_REPORT_TYPE_TO_MASK(RUNTIME_REPORT_TYPE_HOTPATCH);
+            *reportTypes = RUNTIME_REPORT_TYPE_TO_MASK(RuntimeReportTypeHotpatch);
         } else if (_stricmp(argv[i], "all") == 0) {
             *reportTypes = RUNTIME_REPORT_TYPE_TO_MASK(RuntimeReportTypeDriver) |
-                           RUNTIME_REPORT_TYPE_TO_MASK(RUNTIME_REPORT_TYPE_HOTPATCH);
+                           RUNTIME_REPORT_TYPE_TO_MASK(RuntimeReportTypeHotpatch);
         } else {
             std::fprintf(stderr, "error: unknown --type '%s'\n", argv[i]);
             return false;
@@ -123,7 +123,7 @@ ReportTypeName(UINT16 reportType)
     switch (reportType) {
     case RuntimeReportTypeDriver:
         return "Driver report";
-    case RUNTIME_REPORT_TYPE_HOTPATCH:
+    case RuntimeReportTypeHotpatch:
         return "Hotpatch report";
     default:
         return "Unknown report type";
@@ -222,7 +222,7 @@ PrintPackage(const std::vector<BYTE>& package)
             PrintDriverReport(data + cursor, reportSize);
             break;
 
-        case RUNTIME_REPORT_TYPE_HOTPATCH:
+        case RuntimeReportTypeHotpatch:
             PrintHotpatchReport(data + cursor, reportSize);
             break;
 
