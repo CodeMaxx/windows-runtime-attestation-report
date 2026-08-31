@@ -159,11 +159,15 @@
     <ClInclude Include="HotpatchReport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets" Condition="Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets')" />
+  </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Restore them first (see BUILDING.md). The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props'))" />
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets'))" />
     <Error Condition="'$(Platform)'=='x64' And !Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props'))" />
     <Error Condition="'$(Platform)'=='ARM64' And !Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props'))" />
   </Target>
