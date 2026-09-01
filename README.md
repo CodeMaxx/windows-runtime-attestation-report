@@ -14,12 +14,8 @@ header (digest algorithm and signature scheme) and one or more decoded reports:
 Which reports are requested and printed is controlled by `--type` (see
 [Running](#running)).
 
-The driver report structures come from the Windows SDK's `winnt.h`, and the API
-is declared in `sysinfoapi.h`. The hotpatch report structures have not shipped
-in the Windows SDK yet — that update is expected in the coming weeks — so until
-then the sample defines them in
-[`src/HotpatchReport.h`](src/HotpatchReport.h). Once they ship, you can remove
-that header and use the SDK definitions instead.
+The report structures come from the Windows SDK's `winnt.h`, and the API is
+declared in `sysinfoapi.h`.
 
 > Scope: this sample **retrieves, parses, and prints** the report. It does not
 > perform remote attestation or verify the package's RSA-PSS signature.
@@ -33,7 +29,10 @@ that header and use the SDK definitions instead.
 
 To **run**:
 
-- Windows 11 **25H2** or later.
+- Windows 11 **25H2** or later for the *driver* report.
+- A Windows 11 **Insider Preview build 29591.1000** or later for the *hotpatch*
+  report. Asking for it on an earlier build returns `ERROR_INVALID_PARAMETER`
+  rather than an empty report.
 - **VBS** enabled (required to produce any signed report).
 - **HVCI** enabled — required for the *driver* report. The *hotpatch* report is
   HVCI-independent.
@@ -43,7 +42,11 @@ To **build**:
 - Visual Studio 2022 or the Build Tools for Visual Studio 2022, with the
   **Desktop development with C++** workload (MSVC v143). Builds for **x64** and
   **ARM64**.
-- **Windows 11 SDK 10.0.26100.7705** or later.
+- **Windows SDK 10.0.29648**, consumed as a NuGet package.
+
+The sample links the C runtime statically, so the executable it produces has no
+dependency on the Visual C++ Redistributable and runs as a single self-contained
+file.
 
 ## Project layout
 
@@ -54,8 +57,8 @@ src\
   Helpers.h/.cpp          Bounds checks, structure overlay, hash-algorithm
                           table, and hex/blob/banner printing.
   DriverReport.h/.cpp     Driver report decoder.
-  HotpatchReport.h/.cpp   Hotpatch report decoder, including the hotpatch
-                          report structure definitions used by the sample.
+  HotpatchReport.h/.cpp   Hotpatch report decoder.
+  packages.config         Windows SDK NuGet package reference.
 ```
 
 ## Building
@@ -64,6 +67,7 @@ Open `WindowsRuntimeAttestationReport.sln` in Visual Studio and build the `x64`
 or `ARM64` configuration, or from a Developer Command Prompt:
 
 ```
+nuget restore WindowsRuntimeAttestationReport.sln
 msbuild WindowsRuntimeAttestationReport.sln /p:Configuration=Release /p:Platform=x64
 msbuild WindowsRuntimeAttestationReport.sln /p:Configuration=Release /p:Platform=ARM64
 ```
@@ -81,7 +85,8 @@ WindowsRuntimeAttestationReport.exe [--type driver|hotpatch|all]
 
 - `driver`   — the loaded-driver report (default).
 - `hotpatch` — the kernel-mode hotpatch report.
-- `all`      — both of the above.
+- `all`      — both of the above. The SDK also defines a Code Integrity report
+  type, which this sample does not request.
 
 ### Driver report
 

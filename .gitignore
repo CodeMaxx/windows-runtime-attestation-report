@@ -19,6 +19,9 @@ deploy/
 *.idb
 *.log
 
+# NuGet-restored Windows SDK packages
+packages/
+
 # Visual Studio user-specific files
 .vs/
 *.user

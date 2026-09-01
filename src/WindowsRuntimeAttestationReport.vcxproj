@@ -22,7 +22,6 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{746C2722-0892-4D24-82BD-A996895191EA}</ProjectGuid>
     <RootNamespace>WindowsRuntimeAttestationReport</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <ProjectName>WindowsRuntimeAttestationReport</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -52,6 +51,16 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <!-- DO NOT MOVE: these Windows SDK package props must be imported BEFORE
+       Microsoft.Cpp.props, which consumes the SDK root and version they set.
+       Importing them in the usual place (after Microsoft.Cpp.props) makes the
+       build fail with "cannot open include file: 'windows.h'". Visual Studio's
+       Manage NuGet Packages may try to relocate this group; move it back. -->
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props" Condition="Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props')" />
+    <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props" Condition="'$(Platform)'=='x64' And Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props')" />
+    <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props" Condition="'$(Platform)'=='ARM64' And Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props')" />
+  </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -75,6 +84,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -92,6 +102,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +120,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,6 +138,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,4 +159,16 @@
     <ClInclude Include="HotpatchReport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets" Condition="Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Restore them first (see BUILDING.md). The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.props'))" />
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.targets'))" />
+    <Error Condition="'$(Platform)'=='x64' And !Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.x64.props'))" />
+    <Error Condition="'$(Platform)'=='ARM64' And !Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.CPP.arm64.10.0.29648.1000-preview\build\native\Microsoft.Windows.SDK.cpp.arm64.props'))" />
+  </Target>
 </Project>
