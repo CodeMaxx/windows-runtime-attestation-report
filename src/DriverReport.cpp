@@ -3,12 +3,12 @@
 
 #include <cstdio>
 
-void
+bool
 PrintDriverReport(const BYTE* report, UINT32 reportSize)
 {
     if (reportSize < FIELD_OFFSET(DRIVER_RUNTIME_REPORT, DriverEntries)) {
-        std::printf("  (driver report too small)\n");
-        return;
+        std::fprintf(stderr, "error: driver report too small\n");
+        return false;
     }
 
     const DRIVER_RUNTIME_REPORT UNALIGNED* driverReport =
@@ -32,8 +32,8 @@ PrintDriverReport(const BYTE* report, UINT32 reportSize)
                         static_cast<size_t>(i) * sizeof(DRIVER_INFO_ENTRY);
 
         if (!InRange(offset, sizeof(DRIVER_INFO_ENTRY), reportSize)) {
-            std::printf("  (entry %u out of range)\n", i);
-            return;
+            std::fprintf(stderr, "error: entry %u out of range\n", i);
+            return false;
         }
 
         const DRIVER_INFO_ENTRY UNALIGNED* entry =
@@ -68,4 +68,6 @@ PrintDriverReport(const BYTE* report, UINT32 reportSize)
                         reinterpret_cast<const char*>(report + entry->OemNameOffset));
         }
     }
+
+    return true;
 }

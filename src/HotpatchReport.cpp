@@ -3,12 +3,12 @@
 
 #include <cstdio>
 
-void
+bool
 PrintHotpatchReport(const BYTE* report, UINT32 reportSize)
 {
     if (reportSize < FIELD_OFFSET(HOTPATCH_RUNTIME_REPORT, Entries)) {
-        std::printf("  (hotpatch report too small)\n");
-        return;
+        std::fprintf(stderr, "error: hotpatch report too small\n");
+        return false;
     }
 
     const HOTPATCH_RUNTIME_REPORT UNALIGNED* hotpatchReport =
@@ -24,8 +24,8 @@ PrintHotpatchReport(const BYTE* report, UINT32 reportSize)
                         static_cast<size_t>(i) * sizeof(HOTPATCH_INFO_ENTRY);
 
         if (!InRange(offset, sizeof(HOTPATCH_INFO_ENTRY), reportSize)) {
-            std::printf("  (entry %u out of range)\n", i);
-            return;
+            std::fprintf(stderr, "error: entry %u out of range\n", i);
+            return false;
         }
 
         const HOTPATCH_INFO_ENTRY UNALIGNED* entry =
@@ -42,4 +42,6 @@ PrintHotpatchReport(const BYTE* report, UINT32 reportSize)
         std::printf("      %-14s: %u\n", "patch sequence",
                     entry->LatestSequenceNumber);
     }
+
+    return true;
 }

@@ -141,29 +141,38 @@ SignatureSchemeName(UINT16 scheme)
 }
 
 // Parses the report package envelope and dispatches each contained report to
-// its decoder.
-static void
+// its decoder. Returns false if the package is malformed.
+static bool
 PrintPackage(const std::vector<BYTE>& package)
 {
     const BYTE* data = package.data();
     size_t total = package.size();
 
     if (total < sizeof(RUNTIME_REPORT_PACKAGE_HEADER)) {
-        std::printf("package too small\n");
-        return;
+        std::fprintf(stderr, "error: package too small\n");
+        return false;
     }
 
     const RUNTIME_REPORT_PACKAGE_HEADER UNALIGNED* header =
         Overlay<RUNTIME_REPORT_PACKAGE_HEADER>(data, 0);
 
     if (header->Magic != RUNTIME_REPORT_PACKAGE_MAGIC) {
-        std::printf("unexpected package magic 0x%08X\n", header->Magic);
-        return;
+        std::fprintf(stderr, "error: unexpected package magic 0x%08X\n",
+                     header->Magic);
+        return false;
     }
 
     if (header->PackageVersion != RUNTIME_REPORT_PACKAGE_VERSION_CURRENT) {
-        std::printf("unsupported package version %u\n", header->PackageVersion);
-        return;
+        std::fprintf(stderr, "error: unsupported package version %u\n",
+                     header->PackageVersion);
+        return false;
+    }
+
+    if (header->PackageSize != total) {
+        std::fprintf(stderr,
+                     "error: package declares %u bytes but %zu were returned\n",
+                     header->PackageSize, total);
+        return false;
     }
 
     const HashAlg* digestAlg = FindHashAlg(header->ReportDigestType);
@@ -188,16 +197,16 @@ PrintPackage(const std::vector<BYTE>& package)
     size_t reportsOffset = signatureOffset + header->SignatureSize;
 
     if (!InRange(reportsOffset, header->TotalAuthenticatedReportsSize, total)) {
-        std::printf("package sections exceed the buffer\n");
-        return;
+        std::fprintf(stderr, "error: package sections exceed the buffer\n");
+        return false;
     }
     size_t reportsEnd = reportsOffset + header->TotalAuthenticatedReportsSize;
 
     size_t cursor = reportsOffset;
     for (UINT16 i = 0; i < header->NumberOfReports; i += 1) {
         if (!InRange(cursor, sizeof(RUNTIME_REPORT_HEADER), reportsEnd)) {
-            std::printf("truncated report header\n");
-            return;
+            std::fprintf(stderr, "error: truncated report header\n");
+            return false;
         }
 
         const RUNTIME_REPORT_HEADER UNALIGNED* reportHeader =
@@ -206,8 +215,8 @@ PrintPackage(const std::vector<BYTE>& package)
 
         if (reportSize < sizeof(RUNTIME_REPORT_HEADER) ||
             !InRange(cursor, reportSize, reportsEnd)) {
-            std::printf("report %u has an invalid size\n", i);
-            return;
+            std::fprintf(stderr, "error: report %u has an invalid size\n", i);
+            return false;
         }
 
         char label[96];
@@ -217,13 +226,14 @@ PrintPackage(const std::vector<BYTE>& package)
                       ReportTypeName(reportHeader->ReportType));
         PrintBanner(label);
 
+        bool ok = true;
         switch (reportHeader->ReportType) {
         case RuntimeReportTypeDriver:
-            PrintDriverReport(data + cursor, reportSize);
+            ok = PrintDriverReport(data + cursor, reportSize);
             break;
 
         case RuntimeReportTypeHotpatch:
-            PrintHotpatchReport(data + cursor, reportSize);
+            ok = PrintHotpatchReport(data + cursor, reportSize);
             break;
 
         default:
@@ -232,12 +242,26 @@ PrintPackage(const std::vector<BYTE>& package)
             break;
         }
 
+        if (!ok) {
+            return false;
+        }
+
         char footer[128];
         std::snprintf(footer, sizeof(footer), "End of %s", label);
         PrintFooter(footer);
 
         cursor += reportSize;
     }
+
+    if (cursor != reportsEnd) {
+        std::fprintf(stderr,
+                     "error: %zu authenticated bytes were not accounted for by "
+                     "the %u reports in the package\n",
+                     reportsEnd - cursor, header->NumberOfReports);
+        return false;
+    }
+
+    return true;
 }
 
 int
@@ -256,7 +280,9 @@ main(int argc, char** argv)
             return 1;
         }
 
-        PrintPackage(package);
+        if (!PrintPackage(package)) {
+            return 1;
+        }
     } catch (const std::bad_alloc&) {
         std::fprintf(stderr, "error: out of memory\n");
         return 1;
